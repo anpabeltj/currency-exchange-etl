@@ -102,14 +102,14 @@ cd currency-exchange
 
 **2. Set up your environment variables**
 
-Create a `.env` file in the project root with the following values:
+Create a `.env` file in the project root based on the provided `.env.example`:
 
 ```
-DB_USER=currency_user
-DB_PASS=currency_pass
+DB_USER=your_db_user
+DB_PASS=your_db_password
 DB_HOST=postgres-currency
 DB_PORT=5432
-DB_NAME=currency_db
+DB_NAME=your_db_name
 ```
 
 **3. Start all services**
@@ -120,12 +120,7 @@ docker compose up
 
 **4. Access the Airflow UI**
 
-Open your browser and go to `http://localhost:8080`
-
-Login credentials:
-
-- Username: `admin`
-- Password: `admin`
+Open your browser and go to `http://localhost:8080` and log in with the credentials configured in your `docker-compose.yml`.
 
 **5. Trigger the DAG**
 
