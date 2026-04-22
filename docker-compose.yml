@@ -1,0 +1,53 @@
+services:
+  postgres-airflow:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+  postgres-currency:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: currency_user
+      POSTGRES_PASSWORD: currency_pass
+      POSTGRES_DB: currency_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_currency_data:/var/lib/postgresql/data
+  airflow:
+    image: apache/airflow:2.8.1
+    env_file:
+      - .env
+    command: >
+      bash -c "airflow db migrate &&
+               airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com ;
+               airflow scheduler & airflow webserver"
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres-airflow/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      _PIP_ADDITIONAL_REQUIREMENTS: "requests pandas psycopg2-binary python-dotenv"
+      _AIRFLOW_WWW_USER_CREATE: "true"
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: admin
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./scripts:/opt/airflow/scripts
+      - ./.env:/opt/airflow/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-airflow
+
+  metabase:
+    image: metabase/metabase:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres-airflow
+
+volumes:
+  postgres_airflow_data:
+  postgres_currency_data:
