@@ -14,4 +14,3 @@ if __name__ == "__main__":
     for item in currency_data:
         print(item['base'], item['date'], item['quote'], item['rate'])
    
-  # Print first 5 results for brevity
