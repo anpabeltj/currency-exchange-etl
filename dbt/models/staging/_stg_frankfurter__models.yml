@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_frankfurter__rates
+    description: Deduplicated daily rates. Only days the provider actually published.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [rate_date, base_currency, quote_currency]
+    columns:
+      - name: rate_date
+        data_tests: [not_null]
+      - name: base_currency
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_currency')
+                field: currency_code
+      - name: quote_currency
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_currency')
+                field: currency_code
+      - name: rate
+        description: Units of quote_currency per 1 unit of base_currency.
+        data_tests:
+          - not_null
+          - positive_value

@@ -1,0 +1,38 @@
+name: currency_exchange
+version: "1.0.0"
+config-version: 2
+profile: currency_exchange
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+target-path: target
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # A daily return this many standard deviations away from the mean of the
+  # previous anomaly_window_size published days is flagged as an anomaly
+  anomaly_z_threshold: 3
+  anomaly_window_size: 30
+  # Moving average forecast: average of the last N published rates,
+  # repeated for the next forecast_horizon business days
+  forecast_window_size: 30
+  forecast_horizon: 20
+
+models:
+  currency_exchange:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+
+seeds:
+  currency_exchange:
+    +schema: reference

@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: int_rates__date_filled
+    description: One row per calendar day per pair, with weekends and holidays forward filled.
+    columns:
+      - name: rate
+        data_tests: [not_null]
+      - name: is_filled
+        description: True when the provider did not publish that day and the previous rate was carried forward.
+        data_tests: [not_null]

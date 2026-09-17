@@ -1,0 +1,69 @@
+{
+  "name": "Currency Exchange Dashboard",
+  "description": "USD against IDR, MYR and SGD with a 30 day moving average forecast. Provisioned by metabase/provision.py.",
+  "cards": [
+    {
+      "name": "USD to IDR (latest)",
+      "query_file": "latest_usd_idr.sql",
+      "display": "scalar",
+      "visualization_settings": {},
+      "layout": { "col": 0, "row": 0, "size_x": 8, "size_y": 3 }
+    },
+    {
+      "name": "USD to MYR (latest)",
+      "query_file": "latest_usd_myr.sql",
+      "display": "scalar",
+      "visualization_settings": {},
+      "layout": { "col": 8, "row": 0, "size_x": 8, "size_y": 3 }
+    },
+    {
+      "name": "USD to SGD (latest)",
+      "query_file": "latest_usd_sgd.sql",
+      "display": "scalar",
+      "visualization_settings": {},
+      "layout": { "col": 16, "row": 0, "size_x": 8, "size_y": 3 }
+    },
+    {
+      "name": "USD to IDR, last 6 months and 30 day moving average forecast",
+      "query_file": "forecast_usd_idr.sql",
+      "display": "line",
+      "visualization_settings": {
+        "graph.dimensions": ["rate_date"],
+        "graph.metrics": ["actual", "moving_average_forecast"],
+        "graph.y_axis.auto_split": false,
+        "graph.y_axis.unpin_from_zero": true,
+        "series_settings": {
+          "moving_average_forecast": { "line.style": "dashed" }
+        }
+      },
+      "layout": { "col": 0, "row": 3, "size_x": 16, "size_y": 8 }
+    },
+    {
+      "name": "Forecast for the next 20 business days",
+      "query_file": "forecast_table.sql",
+      "display": "table",
+      "visualization_settings": {},
+      "layout": { "col": 16, "row": 3, "size_x": 8, "size_y": 8 }
+    },
+    {
+      "name": "MYR and SGD to IDR",
+      "query_file": "cross_rates_to_idr.sql",
+      "display": "line",
+      "visualization_settings": {
+        "graph.dimensions": ["rate_date"],
+        "graph.metrics": ["myr_to_idr", "sgd_to_idr"]
+      },
+      "layout": { "col": 0, "row": 11, "size_x": 12, "size_y": 7 }
+    },
+    {
+      "name": "Monthly change vs USD (%), last 24 months",
+      "query_file": "monthly_change.sql",
+      "display": "bar",
+      "visualization_settings": {
+        "graph.dimensions": ["month", "quote_currency"],
+        "graph.metrics": ["pct_change"]
+      },
+      "layout": { "col": 12, "row": 11, "size_x": 12, "size_y": 7 }
+    }
+  ]
+}

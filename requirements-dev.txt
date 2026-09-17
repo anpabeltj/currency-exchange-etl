@@ -1,0 +1,5 @@
+pytest
+requests
+psycopg2-binary
+dbt-core~=1.11.0
+dbt-postgres~=1.11.0

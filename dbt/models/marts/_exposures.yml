@@ -1,0 +1,15 @@
+version: 2
+
+exposures:
+  - name: currency_dashboard
+    label: Currency Exchange Dashboard
+    type: dashboard
+    maturity: medium
+    url: http://localhost:3000
+    description: Metabase dashboard with rate trends, cross rates, daily change and anomalies.
+    depends_on:
+      - ref('fct_exchange_rates')
+      - ref('fct_cross_rates')
+      - ref('fct_rate_metrics')
+    owner:
+      name: Patra

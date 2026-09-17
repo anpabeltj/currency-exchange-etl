@@ -1,0 +1,13 @@
+version: 2
+
+seeds:
+  - name: currencies
+    description: Reference list of currencies. Add a row here before adding a new quote currency to the pipeline.
+    config:
+      column_types:
+        currency_code: char(3)
+    columns:
+      - name: currency_code
+        data_tests:
+          - unique
+          - not_null

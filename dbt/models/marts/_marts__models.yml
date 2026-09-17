@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: Calendar table from the first published rate to today.
+    columns:
+      - name: date_day
+        data_tests: [unique, not_null]
+
+  - name: dim_currency
+    description: Currency reference data from the currencies seed.
+    columns:
+      - name: currency_code
+        data_tests: [unique, not_null]
+
+  - name: fct_exchange_rates
+    description: >
+      Grain is one row per calendar day per currency pair. Weekends and holidays
+      are forward filled and marked with is_filled. Use this for charts and joins.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [rate_date, base_currency, quote_currency]
+    columns:
+      - name: rate_date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_day
+      - name: quote_currency
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_currency')
+                field: currency_code
+      - name: rate
+        description: Units of quote_currency per 1 unit of base_currency.
+        data_tests: [not_null, positive_value]
+      - name: is_filled
+        data_tests: [not_null]
+      - name: source_watermark
+        description: Newest raw loaded_at seen when this row was built. Drives the incremental logic.
+        data_tests: [not_null]
+
+  - name: fct_cross_rates
+    description: All currency pairs derived through the base currency, one row per calendar day per pair.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [rate_date, from_currency, to_currency]
+    columns:
+      - name: rate
+        description: Units of to_currency per 1 unit of from_currency.
+        data_tests: [not_null, positive_value]
+
+  - name: fct_rate_metrics
+    description: >
+      Daily change, moving averages, volatility and a simple z score anomaly flag.
+      Built from published days only. For a USD base, a rising IDR rate means
+      the rupiah is weakening.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [rate_date, base_currency, quote_currency]
+    columns:
+      - name: pct_change
+        description: Percent change from the previous published day. Null on the first day.
+      - name: volatility_30d
+        description: Standard deviation of daily log returns over the last 30 published days.
+      - name: return_z_score
+        description: How unusual today's return is compared with the previous window. Null until the window is full.
+      - name: is_anomaly
+        data_tests: [not_null]
+
+  - name: fct_rate_forecast
+    description: >
+      Moving average forecast. For each pair, the average of the last 30 published
+      rates is repeated for the next 20 business days. A simple baseline, not a
+      machine learning model.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [forecast_date, base_currency, quote_currency]
+    columns:
+      - name: forecast_date
+        data_tests: [not_null]
+      - name: forecast_rate
+        description: Average of the last 30 published rates.
+        data_tests: [not_null, positive_value]
+      - name: business_days_ahead
+        description: 1 for the first business day after the last published rate.
+        data_tests: [not_null]
